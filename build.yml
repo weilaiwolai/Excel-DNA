@@ -1,0 +1,20 @@
+name: Build Excel-DNA Xiuyue
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        arch: [x86, x64]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: microsoft/setup-msbuild@v2
+      - uses: nuget/setup-nuget@v2
+      - run: |
+          nuget install ExcelDna.AddIn -Version 1.7.0 -OutputDirectory packages
+          msbuild packages\ExcelDna.AddIn.1.7.0\tools\ExcelDna.Build /p:Configuration=Release /p:Platform=${{ matrix.arch }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: xiuyue-${{ matrix.arch }}
+          path: bin\Release\Xiuyue.xll
